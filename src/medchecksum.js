@@ -46,3 +46,33 @@ exports.verifyIKNR = (iknr) => {
   if (solution === checksum) return true;
   return false;
 };
+
+/**
+ * Verifies a Health Insurance Number / Krankenversichertennummer (KVNR) based on the
+ * length and the checksum.
+ * @param {string} kvnr The Health Insurance Number to verify.
+ * @returns {boolean} True if the given KVNR is valid, false otherwise.
+ */
+exports.verifyKVNR = (kvnr) => {
+  if (kvnr.length !== 10 || !Helpers.isNumeric(kvnr.substr(1, 9))) return false;
+  let checkKvnr = kvnr.toLowerCase();
+  checkKvnr = (checkKvnr.charCodeAt(0) - 96).toString().padStart(2, '0') + checkKvnr.substr(1, 9);
+  const checksum = parseInt(checkKvnr.substr(10, 1), 10);
+  checkKvnr = checkKvnr.substr(0, 10);
+  const splitKvnr = checkKvnr.split('');
+  let mult = 1;
+  let solution = 0;
+  splitKvnr.forEach((char) => {
+    const product = char * mult;
+    let crosssum = 0;
+    product.toString().split('').forEach((num) => {
+      crosssum += parseInt(num, 10);
+    });
+    solution += crosssum;
+    mult = mult === 1 ? 2 : 1;
+  });
+  solution %= 10;
+
+  if (solution === checksum) return true;
+  return false;
+};
